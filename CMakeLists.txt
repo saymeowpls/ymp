@@ -9,7 +9,7 @@ FetchContent_Declare(ftxui
  
 FetchContent_MakeAvailable(ftxui)
  
-add_executable(yap main.cpp yandex_music_app.cpp)
+add_executable(yap main.cpp yandex_music_app.cpp app_factory.cpp)
 target_link_libraries(yap
   PRIVATE ftxui::screen
   PRIVATE ftxui::dom

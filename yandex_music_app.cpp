@@ -1,8 +1,9 @@
 #include "yandex_music_app.h"
+#include "app_factory.h"
 #include <iostream>
 // #include <spdlog/spdlog.h> // Рекомендую добавить логирование
 
-YandexMusicApp::YandexMusicApp(const std::string& authToken)
+YandexMusicApp::YandexMusicApp(const std::string& authToken) 
     : authToken_(authToken) {
     
     // Валидация токена при создании
@@ -28,9 +29,9 @@ void YandexMusicApp::initializeDependencies() {
         // spdlog::info("Initializing Yandex Music App dependencies...");
         
         // Создаем зависимости через фабрику
-        auto httpClient = AppFactory::createHttpClient();
-        auto apiClient = AppFactory::createApiClient(authToken_);
-        auto audioPlayer = AppFactory::createAudioPlayer();
+        auto httpClient = AppFactory::createHttpClient(config_);
+        auto apiClient = AppFactory::createApiClient(config_);
+        auto audioPlayer = AppFactory::createAudioPlayer(config_);
         
         // Создаем сервисный слой
         musicService_ = std::make_shared<MusicService>(
