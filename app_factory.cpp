@@ -1,4 +1,6 @@
 #include "app_factory.h"
+#include "http_client.h"
+#include "interfaces.h"
 #include <stdexcept>
 #include <iostream>
 
@@ -49,10 +51,10 @@ std::unique_ptr<IHttpClient> AppFactory::createHttpClient(const AppConfig& confi
     return createBeastHttpClient(&config);
 }
 
-std::unique_ptr<IMusicApiClient> AppFactory::createApiClient(const AppConfig& config) {
-    auto httpClient = createHttpClient(config);
-    return createYandexMusicApiClient(config.authToken, std::move(httpClient), &config);
-}
+// std::unique_ptr<IMusicApiClient> AppFactory::createApiClient(const AppConfig& config) {
+    // auto httpClient = createHttpClient(config);
+    // return createYandexMusicApiClient(config.authToken, std::move(httpClient), &config);
+// }
 
 std::unique_ptr<IAudioPlayer> AppFactory::createAudioPlayer(const AppConfig& config) {
     // Пока используем заглушку, но можно добавить логику выбора на основе конфигурации
@@ -87,9 +89,16 @@ bool AppFactory::canCreateAudioPlayer() const {
 std::unique_ptr<IHttpClient> AppFactory::createBeastHttpClient(const AppConfig* config) {
     try {
         auto client = std::make_unique<BeastHttpClient>();
-        
         // Здесь можно применить конфигурацию, если она предоставлена
         if (config) {
+            std::map<std::string, std::string> headers = {
+                {"Authorization", "OAuth "}, // TODO: fix
+                {"Accept", "application/json"},
+                {"Content-Type", "application/json"}
+                // {"User-Agent", "Yandex-Music-API"}
+            };
+            client->setDefaultHeaders(headers);
+            client->printHeaders();
             // Настройка таймаутов, повторных попыток и т.д.
             // Например: client->setTimeout(config->httpTimeoutSeconds);
         }
@@ -100,35 +109,35 @@ std::unique_ptr<IHttpClient> AppFactory::createBeastHttpClient(const AppConfig* 
     }
 }
 
-std::unique_ptr<IMusicApiClient> AppFactory::createYandexMusicApiClient(
-    const std::string& authToken, 
-    std::unique_ptr<IHttpClient> httpClient,
-    const AppConfig* config
-) {
-    if (authToken.empty()) {
-        throw std::invalid_argument("Auth token cannot be empty");
-    }
-    
-    if (!httpClient) {
-        throw std::invalid_argument("HTTP client cannot be null");
-    }
-    
-    try {
-        auto apiClient = std::make_unique<YandexMusicApiClient>(
-            authToken, 
-            std::move(httpClient)
-        );
-        
-        // Применяем конфигурацию, если предоставлена
-        if (config) {
-            // Например: apiClient->setBaseUrl(config->apiBaseUrl);
-        }
-        
-        return apiClient;
-    } catch (const std::exception& e) {
-        throw std::runtime_error("Failed to create API client: " + std::string(e.what()));
-    }
-}
+// std::unique_ptr<IMusicApiClient> AppFactory::createYandexMusicApiClient(
+//     const std::string& authToken, 
+//     std::unique_ptr<IHttpClient> httpClient,
+//     const AppConfig* config
+// ) {
+//     if (authToken.empty()) {
+//         throw std::invalid_argument("Auth token cannot be empty");
+//     }
+//
+//     if (!httpClient) {
+//         throw std::invalid_argument("HTTP client cannot be null");
+//     }
+//
+//     try {
+//         auto apiClient = std::make_unique<YandexMusicApiClient>(
+//             authToken, 
+//             std::move(httpClient)
+//         );
+//
+//         // Применяем конфигурацию, если предоставлена
+//         if (config) {
+//             // Например: apiClient->setBaseUrl(config->apiBaseUrl);
+//         }
+//
+//         return apiClient;
+//     } catch (const std::exception& e) {
+//         throw std::runtime_error("Failed to create API client: " + std::string(e.what()));
+//     }
+// }
 
 std::unique_ptr<IAudioPlayer> AppFactory::createStubAudioPlayer() {
     return std::make_unique<StubAudioPlayer>();

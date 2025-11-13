@@ -5,6 +5,7 @@
 
 YandexMusicApp::YandexMusicApp(const std::string& authToken) 
     : authToken_(authToken) {
+    std::cout<<"YandexMusicApp ctor"<<std::endl;
     
     // Валидация токена при создании
     validateAuthToken();
@@ -30,17 +31,19 @@ void YandexMusicApp::initializeDependencies() {
         
         // Создаем зависимости через фабрику
         auto httpClient = AppFactory::createHttpClient(config_);
-        auto apiClient = AppFactory::createApiClient(config_);
-        auto audioPlayer = AppFactory::createAudioPlayer(config_);
+        std::string ans = httpClient->post("https://api.music.yandex.net:443", "/playlists/list");
+        std::cout << ans << std::endl;
+        // auto apiClient = AppFactory::createApiClient(config_);
+        // auto audioPlayer = AppFactory::createAudioPlayer(config_);
         
         // Создаем сервисный слой
-        musicService_ = std::make_shared<MusicService>(
-            std::move(apiClient), 
-            std::move(audioPlayer)
-        );
+        // musicService_ = std::make_shared<MusicService>(
+            // std::move(apiClient), 
+            // std::move(audioPlayer)
+        // );
         
         // Создаем UI
-        ui_ = std::make_unique<MusicPlayerUI>(musicService_);
+        // ui_ = std::make_unique<MusicPlayerUI>(musicService_);
         
         // spdlog::info("Dependencies initialized successfully");
         
@@ -55,9 +58,9 @@ void YandexMusicApp::initialize() {
         // spdlog::info("Initializing Yandex Music App...");
         
         // Инициализация UI компонентов
-        if (ui_) {
-            ui_->initializeUI();
-        }
+        // if (ui_) {
+            // ui_->initializeUI();
+        // }
         
         // Здесь можно добавить дополнительную инициализацию:
         // - Загрузка кешированных данных
@@ -77,12 +80,12 @@ void YandexMusicApp::run() {
         // spdlog::info("Starting Yandex Music App...");
         
         // Убедимся, что приложение инициализировано
-        if (!ui_) {
-            throw std::runtime_error("UI not initialized");
-        }
+        // if (!ui_) {
+            // throw std::runtime_error("UI not initialized");
+        // }
         
         // Запускаем главный UI цикл
-        ui_->run();
+        // ui_->run();
         
     } catch (const std::exception& e) {
         // spdlog::critical("Critical error while running app: {}", e.what());
@@ -100,9 +103,9 @@ void YandexMusicApp::shutdown() {
         // - Остановка аудиоплеера
         // - Закрытие сетевых соединений
         
-        if (musicService_) {
+        // if (musicService_) {
             // Вызываем методы cleanup у сервиса, если они есть
-        }
+        // }
         
         // spdlog::info("Yandex Music App shutdown completed");
         
